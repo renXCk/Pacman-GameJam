@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56c61dc427f43f74ea05efbeaaa4e540, type: 3}
+  m_Name: GhostAIConfig
+  m_EditorClassIdentifier: Game.Runtime::Game.Ghosts.GhostAIConfig
+  repathInterval: 0.25
+  beamCheckInterval: 0.1
+  arriveDistance: 0.6
+  navMeshSnapDistance: 8
+  scatterRoamTiles: 3
+  fleeTiles: 6
+  fleeCandidates: 4
+  reviveSeconds: 1
+  litSpeedMultiplier: 0.5
+  beamBlockers:
+    serializedVersion: 2
+    m_Bits: 4294967291
+  playerTag: Player
+  banishComboPoints: c8000000900100002003000040060000i
