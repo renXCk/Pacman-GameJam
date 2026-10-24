@@ -1,6 +1,6 @@
 # Blackout Maze
 
-*(working title, TODO: final name)*
+*Pacman Horror*
 
 Game Jam 1: Retro Revolution. **Pac-Man (1980) remade as a first-person survival horror game.**
 
@@ -10,10 +10,10 @@ TODO: add names
 
 | Member | Role |
 | --- | --- |
-| TODO | Dev A: maze, first-person player, flashlight, pickups, collision detection |
-| TODO | Dev B: ghost AI |
-| TODO | Dev C: event framework, configs, game flow, score and lives, UI, docs |
-| TODO | Dev D: art, lighting, audio, QA |
+| Andrea Bayos | Dev A: maze, first-person player, flashlight, pickups, collision detection |
+| Elkan La Madrid | Dev B: ghost AI |
+| Aaron Gonzales | Dev C: event framework, configs, game flow, score and lives, UI, docs |
+| Duncan Marcaida | Dev D: art, lighting, audio, QA |
 
 ## Description
 
