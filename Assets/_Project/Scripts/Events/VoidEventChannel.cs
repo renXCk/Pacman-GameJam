@@ -9,6 +9,8 @@ namespace Game.Events
     {
         public event Action Raised;
 
+        public override int ListenerCount => Raised?.GetInvocationList().Length ?? 0;
+
         // Also available from the asset's context menu in the Inspector, for quick testing.
         [ContextMenu("Raise")]
         public void Raise()

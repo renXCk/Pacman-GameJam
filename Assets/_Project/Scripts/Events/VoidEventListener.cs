@@ -21,6 +21,12 @@ namespace Game.Events
                 channel.Raised -= Respond;
         }
 
-        void Respond() => response.Invoke();
+        void Respond()
+        {
+            if (channel.LogRaises)
+                Debug.Log($"[{name}] heard {channel.name}", this);
+
+            response.Invoke();
+        }
     }
 }

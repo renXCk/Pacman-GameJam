@@ -22,6 +22,13 @@ namespace Game.Events
                 channel.Raised -= Respond;
         }
 
-        void Respond(T value) => response.Invoke(value);
+        void Respond(T value)
+        {
+            // Follows the channel's own Log Raises switch, so one tick traces raiser and listeners.
+            if (channel.LogRaises)
+                Debug.Log($"[{name}] heard {channel.name}: {value}", this);
+
+            response.Invoke(value);
+        }
     }
 }

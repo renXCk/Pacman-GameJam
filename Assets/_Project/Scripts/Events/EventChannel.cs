@@ -10,6 +10,8 @@ namespace Game.Events
     {
         public event Action<T> Raised;
 
+        public override int ListenerCount => Raised?.GetInvocationList().Length ?? 0;
+
         public void Raise(T value)
         {
             if (logRaises)

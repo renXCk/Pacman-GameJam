@@ -13,5 +13,9 @@ namespace Game.Events
         [SerializeField] protected bool logRaises;
 
         public string Description => description;
+        public bool LogRaises => logRaises;
+
+        // How many handlers are subscribed right now. Shown in the channel's Inspector during Play.
+        public abstract int ListenerCount { get; }
     }
 }
