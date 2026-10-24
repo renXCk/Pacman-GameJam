@@ -23,3 +23,4 @@ MonoBehaviour:
   - 5
   frightenedSeconds: 4.5
   frightenedWarningSeconds: 1.5
+  batteryPoints: 300
