@@ -1,0 +1,17 @@
+{
+    "name": "Game.Sandbox",
+    "rootNamespace": "Game.Sandbox",
+    "references": [
+        "Game.Runtime",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

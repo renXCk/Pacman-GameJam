@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c002899eb46a7ba4f90f9ae25c6268df, type: 3}
+  m_Name: LevelConfig_Level1
+  m_EditorClassIdentifier: Game.Runtime::Game.Core.LevelConfig
+  ghostSpeed: 3.8
+  frightenedSpeed: 2.2
+  eatenSpeed: 8
+  scatterChaseSeconds:
+  - 7
+  - 20
+  - 7
+  - 20
+  - 5
+  frightenedSeconds: 6
+  frightenedWarningSeconds: 2
