@@ -8,6 +8,10 @@
 /[Uu]ser[Ss]ettings/
 /[Mm]emoryCaptures/
 /[Rr]ecordings/
+.utmp/
+
+# Play Mode test runs create this scene; never commit it
+/[Aa]ssets/InitTestScene*.unity*
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
@@ -21,6 +25,7 @@ sysinfo.txt
 *.aab
 *.unitypackage
 *.app
+*.blend1
 
 # IDE and solution files (Unity regenerates them)
 .vs/

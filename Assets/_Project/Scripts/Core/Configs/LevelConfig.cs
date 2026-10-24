@@ -3,9 +3,8 @@ using UnityEngine;
 
 namespace Game.Core
 {
-    // Per-level tuning. One asset per level; each replay uses a harder one.
-    // Only the ghost section is filled in so far. Dev C owns this asset and adds the rest
-    // (battery bonus per level, and anything else GameManager needs).
+    // Per-level tuning. One asset per level; each replay uses a harder one (see LevelSequence).
+    // The ghost section belongs to Dev B's ghosts; the bonus section to score.
     [CreateAssetMenu(fileName = "LevelConfig", menuName = "Game/Configs/Level Config")]
     public sealed class LevelConfig : ScriptableObject
     {
@@ -31,11 +30,16 @@ namespace Game.Core
         [Tooltip("Ghosts flash for this many seconds before they recover.")]
         [Min(0f)] [SerializeField] float frightenedWarningSeconds = 2f;
 
+        [Header("Bonus")]
+        [Tooltip("Points for a battery (the remake's fruit) on this level. The original's fruit went 100, 300, 500, ...")]
+        [Min(0)] [SerializeField] int batteryPoints = 100;
+
         public float GhostSpeed => ghostSpeed;
         public float FrightenedSpeed => frightenedSpeed;
         public float EatenSpeed => eatenSpeed;
         public IReadOnlyList<float> ScatterChaseSeconds => scatterChaseSeconds;
         public float FrightenedSeconds => frightenedSeconds;
         public float FrightenedWarningSeconds => frightenedWarningSeconds;
+        public int BatteryPoints => batteryPoints;
     }
 }

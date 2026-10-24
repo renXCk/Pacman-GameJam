@@ -4,7 +4,10 @@
     "references": [
         "Game.Runtime",
         "Game.Sandbox",
-        "Unity.AI.Navigation"
+        "Unity.AI.Navigation",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [
         "Editor"
