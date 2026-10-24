@@ -1,0 +1,24 @@
+name: Package check
+
+# Jam rule: only Unity Registry packages. Fails the PR if Packages/manifest.json
+# gains a git URL, a file: path, a tarball or a scoped registry.
+on:
+  pull_request:
+    paths:
+      - "Packages/manifest.json"
+      - "tools/check-packages.py"
+      - ".github/workflows/package-check.yml"
+  workflow_dispatch:
+
+jobs:
+  registry-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check Packages/manifest.json
+        run: python tools/check-packages.py
