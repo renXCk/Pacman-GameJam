@@ -1,6 +1,6 @@
 # Architecture: Scriptable Objects and Event Broadcasting
 
-The reference for the two graded core features of **Blackout Maze**, written so each section can become a slide. Every code excerpt is copied from the repo (path given above each block).
+The reference for the two graded core features of **Pacman Horror**, written so each section can become a slide. Every code excerpt is copied from the repo (path given above each block).
 
 **In one sentence:** every system in the game is a component that holds references to *assets*, either config assets it reads or event channel assets it raises and hears. No system holds a reference to another system.
 

@@ -8,14 +8,13 @@ Mermaid diagrams can be rendered to images at <https://mermaid.live> (paste, the
 
 ---
 
-## Slide 1: Blackout Maze
+## Slide 1: Pacman Horror
 
-- *Working title*, TODO: final game name
 - Game Jam 1: Retro Revolution
-- Team: TODO: add names (Dev A, Dev B, Dev C, Dev D)
+- Team: Andrea Bayos (A), Elkan La Madrid (B), Aaron Gonzales (C), Duncan Marcaida (D)
 - TODO: date / course
 
-**Show:** title screen screenshot (`MainMenu` scene) once Dev D has styled it.
+**Show:** title screen screenshot (`MainMenu` scene; **Game > Systems > Capture UI Preview** writes one to `Recordings/UiPreview`).
 
 **Speaker note:** "We remade Pac-Man as a first-person horror game. This deck explains how it is built, focusing on our two core features: Scriptable Objects and Event Broadcasting."
 
@@ -50,7 +49,7 @@ Mermaid diagrams can be rendered to images at <https://mermaid.live> (paste, the
 
 ## Slide 4: Gameplay loop mapping
 
-| Pac-Man (1980) | Blackout Maze |
+| Pac-Man (1980) | Pacman Horror |
 | --- | --- |
 | Pellet (10 pts) | Power cell (10 pts) |
 | Power pellet (50 pts), ghosts turn blue | Flare (50 pts), ghosts are frightened |
