@@ -1,12 +1,8 @@
-# Blackout Maze
-
-*Pacman Horror*
+# Pacman Horror
 
 Game Jam 1: Retro Revolution. **Pac-Man (1980) remade as a first-person survival horror game.**
 
 ## Group members
-
-TODO: add names
 
 | Member | Role |
 | --- | --- |
@@ -62,7 +58,8 @@ The build settings list `MainMenu` first, then `Game`.
 | Event channels, configs, GameManager flow, score, lives, high score, pause, all UI | Dev C | Done, tested (EditMode + PlayMode) |
 | Ghost AI | Dev B | Done on its branch, tested in its sandbox |
 | Maze, player, flashlight, pickups | Dev A | Not started in this repo yet. The `Game` scene has an empty `--- Maze goes here ---` root |
-| Art, lighting, audio | Dev D | Not started. UI is a plain dark placeholder |
+| UI look (retro arcade horror: pixel font, CRT scanlines, grain, vignette) | Dev C | Done; restyle by editing `ScriptableObjects/Configs/UiTheme` |
+| Art, lighting, audio | Dev D | Not started |
 
 Today the `Game` scene runs the full state flow (Ready, Playing, pause, caught, game over, retry, main menu) without a maze. It is not yet playable as a game.
 
@@ -73,6 +70,11 @@ Today the `Game` scene runs the full state flow (Ready, Playing, pause, caught, 
 - [Docs/Package-B-Ghost-AI.md](Docs/Package-B-Ghost-AI.md): ghost AI
 - [Docs/Deck/Deck-Outline.md](Docs/Deck/Deck-Outline.md): technical documentation slide deck content
 - [CONTRIBUTING.md](CONTRIBUTING.md): branches, PRs, scene rules, tests
+
+## Credits
+
+- Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) by CodeMan38, SIL Open Font License 1.1 (`Assets/_Project/Art/Fonts/OFL.txt`).
+- All other UI textures (scanlines, grain, vignette, life icon, ghost sprites) are generated in code by **Game > Systems > Generate UI Art**.
 
 ## Jam requirements
 

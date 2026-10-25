@@ -12,13 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77c07c7eb50ecf14d80ed770ea71a782, type: 3}
   m_Name: UiConfig
   m_EditorClassIdentifier: Game.Runtime::Game.Core.UiConfig
-  gameTitle: BLACKOUT MAZE
-  readyMessage: READY
+  gameTitle: PACMAN HORROR
+  menuHint: SELECT WITH MOUSE OR PAD
+  readyMessage: READY!
   caughtMessage: CAUGHT
   levelCompleteMessage: LEVEL COMPLETE
   gameOverMessage: GAME OVER
-  scoreFormat: SCORE  {0}
-  highScoreFormat: HIGH SCORE  {0}
+  scoreFormat: '1UP
+
+    {0}'
+  highScoreFormat: 'HIGH SCORE
+
+    {0}'
   levelFormat: LEVEL {0}
   livesLabel: LIVES
   batteryLabel: BATTERY
@@ -28,10 +33,15 @@ MonoBehaviour:
   controlsTitle: CONTROLS
   settingsTitle: SETTINGS
   volumeLabel: MASTER VOLUME
+  effectsLabel: SCREEN EFFECTS
+  onText: 'ON'
+  offText: 'OFF'
   controlLines:
-  - WASD / Arrow keys    Move
-  - Mouse                Look
-  - Left click           Toggle flashlight
-  - Esc                  Pause
+  - WASD / ARROWS   MOVE
+  - MOUSE           LOOK
+  - LEFT CLICK      FLASHLIGHT
+  - ESC             PAUSE
   volumePrefsKey: audio.masterVolume
   defaultVolume: 0.8
+  effectsPrefsKey: video.screenEffects
+  effectsOnByDefault: 1

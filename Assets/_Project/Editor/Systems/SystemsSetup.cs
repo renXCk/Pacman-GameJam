@@ -39,6 +39,7 @@ namespace Game.EditorTools
         {
             public GameRulesConfig Rules;
             public UiConfig Ui;
+            public UiTheme Theme;
             public PlayerConfig Player;
             public PickupConfig Cell, Flare, Battery;
             public LevelSequence Levels;
@@ -52,7 +53,7 @@ namespace Game.EditorTools
             public PickupEventChannel PickupCollected;
             public IntEventChannel ScoreChanged, LivesChanged, HighScoreChanged, LevelNumberChanged;
             public FloatEventChannel BatteryChanged;
-            public BoolEventChannel PauseChanged, PauseRequested;
+            public BoolEventChannel PauseChanged, PauseRequested, ScreenEffectsChanged;
         }
 
         [MenuItem("Game/Systems/Create Systems Assets")]
@@ -188,7 +189,8 @@ namespace Game.EditorTools
                 Cell = Pickup("PickupConfig_Cell", PickupKind.Cell, "Power Cell", 10, true),
                 Flare = Pickup("PickupConfig_Flare", PickupKind.Flare, "Flare", 50, true),
                 Battery = Pickup("PickupConfig_Battery", PickupKind.Battery, "Battery", 100, false),
-                Progress = LoadOrCreate<LevelProgress>(RuntimeFolder + "/LevelProgress.asset")
+                Progress = LoadOrCreate<LevelProgress>(RuntimeFolder + "/LevelProgress.asset"),
+                Theme = UiArtGenerator.Generate()
             };
 
             // Dev B's three levels, in order. Each replay is harder; past Level 3 it stays at Level 3.
@@ -239,6 +241,8 @@ namespace Game.EditorTools
                 "Raised by PauseController when the game pauses (true) or resumes (false). Heard by pause menu, cursor, audio.");
             a.PauseRequested = Channel<BoolEventChannel>("PauseRequested",
                 "Raised by UI to ask for pause (true) or resume (false), for example the Resume button. Heard by PauseController.");
+            a.ScreenEffectsChanged = Channel<BoolEventChannel>("ScreenEffectsChanged",
+                "Raised by the Settings screen when the player turns screen effects on or off. Heard by ScreenEffectsOverlay and flickering text.");
 
             return a;
         }

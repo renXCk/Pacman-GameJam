@@ -17,6 +17,7 @@ namespace Game.UI
 
         [Header("Widgets")]
         [SerializeField] TMP_Text title;
+        [SerializeField] TMP_Text hintText;
         [SerializeField] TMP_Text highScoreText;
         [SerializeField] Button playButton;
         [SerializeField] Button controlsButton;
@@ -31,6 +32,7 @@ namespace Game.UI
         void Awake()
         {
             title.text = ui.GameTitle;
+            if (hintText != null) hintText.text = ui.MenuHint;
             ShowHighScore(0);
         }
 

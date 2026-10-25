@@ -26,7 +26,7 @@ namespace Game.Tests
         {
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters(LoadSceneMode.Single));
 
-            var manager = Object.FindFirstObjectByType<GameManager>();
+            var manager = Object.FindAnyObjectByType<GameManager>();
             var rules = AssetDatabase.LoadAssetAtPath<GameRulesConfig>("Assets/_Project/ScriptableObjects/Configs/GameRulesConfig.asset");
             var playerCaught = AssetDatabase.LoadAssetAtPath<VoidEventChannel>(EventFolder + "PlayerCaught.asset");
             var pauseRequested = AssetDatabase.LoadAssetAtPath<BoolEventChannel>(EventFolder + "PauseRequested.asset");
@@ -59,7 +59,7 @@ namespace Game.Tests
 
         static TMP_Text Text(string name)
         {
-            foreach (TMP_Text text in Object.FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (TMP_Text text in Object.FindObjectsByType<TMP_Text>(FindObjectsInactive.Include))
             {
                 if (text.name == name)
                     return text;

@@ -85,7 +85,9 @@ Nothing new; the ghosts already match. `GameManager` raises `LevelStarted` befor
 
 ### Dev D: audio, lighting, VFX
 
-Listen, never call: `GameStateChanged` (music and light per state), `PickupCollected` (cell / battery by `PickupConfig.Kind`), `FlareCollected`, `GhostBanished` (combo for pitch), `PlayerCaught`, `LevelComplete`, `ExtraLifeAwarded`, `PauseChanged` (duck or pause audio), `ScoreChanged`, `ModeChanged` (siren). Master volume is `AudioListener.volume`, saved in `PlayerPrefs` under `UiConfig.VolumePrefsKey` (`audio.masterVolume`); an `AudioManager` can build on that key. The UI is a plain dark placeholder (near-black, off-white text, one dim red accent) and is safe to restyle: views only need their serialized fields kept.
+Listen, never call: `GameStateChanged` (music and light per state), `PickupCollected` (cell / battery by `PickupConfig.Kind`), `FlareCollected`, `GhostBanished` (combo for pitch), `PlayerCaught`, `LevelComplete`, `ExtraLifeAwarded`, `PauseChanged` (duck or pause audio), `ScoreChanged`, `ModeChanged` (siren). Master volume is `AudioListener.volume`, saved in `PlayerPrefs` under `UiConfig.VolumePrefsKey` (`audio.masterVolume`); an `AudioManager` can build on that key.
+
+The UI uses a **retro arcade horror** look: Press Start 2P (the 1980 cabinet's pixel font, OFL), READY! in yellow, blood-red neon titles, and a CRT layer (scanlines, vignette, moving grain) on its own canvas. Every color, the font, the battery bar and every effect strength live in `ScriptableObjects/Configs/UiTheme`; edit that asset to restyle. Keep font sizes at multiples of 8 so the pixel font stays sharp. Players can turn the screen effects off in **Settings** (saved under `UiConfig.EffectsPrefsKey`, announced on `ScreenEffectsChanged`). **Game > Systems > Generate UI Art** regenerates any deleted texture, and **Game > Systems > Capture UI Preview** renders every screen to `Recordings/UiPreview` for checking or slides. Views only need their serialized fields kept.
 
 ## Behaviour decisions (ask Dev C before changing)
 

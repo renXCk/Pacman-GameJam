@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Game.Core;
 using Game.Systems;
 using Game.UI;
 using TMPro;
@@ -14,28 +15,28 @@ using Object = UnityEngine.Object;
 namespace Game.EditorTools
 {
     // Builds the MainMenu and Game scenes and their uGUI screens, and wires every serialized
-    // field to the assets from SystemsSetup. The look is a plain dark placeholder for Dev D.
+    // field to the assets from SystemsSetup. Colors, font and effect strengths come from
+    // UiTheme; words from UiConfig.
+    //
+    // Press Start 2P sits on an 8 px grid, so every font size here is a multiple of 8 and every
+    // widget is placed at whole-pixel offsets from a corner or the center (at the 1920 x 1080
+    // reference), never at a fractional anchor that would put glyphs on half pixels.
     static class SystemsSceneBuilder
     {
-        static readonly Color Background = new(0.02f, 0.02f, 0.03f, 1f);
-        static readonly Color Overlay = new(0f, 0f, 0f, 0.88f);
-        static readonly Color TextColor = new(0.86f, 0.84f, 0.80f, 1f);
-        static readonly Color DimText = new(0.55f, 0.53f, 0.50f, 1f);
-        static readonly Color Accent = new(0.72f, 0.08f, 0.06f, 1f);
-        static readonly Color ButtonColor = new(0.09f, 0.09f, 0.10f, 1f);
+        const string ConfigFolder = "Assets/_Project/ScriptableObjects/Configs/";
 
-        static Sprite uiSprite;
-        static Sprite backgroundSprite;
-        static Sprite knobSprite;
+        static UiTheme theme;
+        static UiConfig ui;
+        static SystemsSetup.Assets assets;
 
         public static void BuildMainMenu(string path)
         {
-            LoadBuiltinSprites();
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             // Load the assets only now: a new Single scene unloads unused assets, which would leave
             // references taken earlier pointing at destroyed objects (saved as None).
-            SystemsSetup.Assets a = SystemsSetup.CreateAssets();
+            Begin(SystemsSetup.CreateAssets());
+            SystemsSetup.Assets a = assets;
 
             CreateCamera("Menu Camera");
             var systems = new GameObject("Systems");
@@ -46,43 +47,47 @@ namespace Game.EditorTools
             Wire(systems.AddComponent<AudioSettingsLoader>(), ("ui", a.Ui));
             CreateEventSystem();
 
-            RectTransform canvas = CreateCanvas("Main Menu Canvas");
-            Panel(canvas, "Background", Background);
+            RectTransform canvas = CreateCanvas("Main Menu Canvas", 0);
+            Panel(canvas, "Background", theme.Background);
 
-            TMP_Text title = NewText(canvas, "Title", "", 120, TextColor, TextAlignmentOptions.Center);
-            Place(title, new Vector2(0.5f, 0.78f), new Vector2(1400f, 180f));
-            title.characterSpacing = 12f;
+            TMP_Text highScore = NewText(canvas, "High Score", string.Format(ui.HighScoreFormat, 0), 32, theme.Text, TextAlignmentOptions.Top);
+            At(highScore, Top, new Vector2(0f, -56f), new Vector2(768f, 96f));
 
-            TMP_Text highScore = NewText(canvas, "High Score", "", 36, DimText, TextAlignmentOptions.Center);
-            Place(highScore, new Vector2(0.5f, 0.64f), new Vector2(800f, 60f));
+            TMP_Text title = NewText(canvas, "Title", ui.GameTitle, 96, theme.Accent, TextAlignmentOptions.Center, neon: true);
+            At(title, Center, new Vector2(0f, 264f), new Vector2(1600f, 160f));
+            AddEffect(title, TextEffect.Mode.Flicker);
 
-            RectTransform column = Column(canvas, "Buttons", new Vector2(0.5f, 0.38f), new Vector2(480f, 380f));
+            BuildGhostRow(canvas, new Vector2(0f, 104f));
+
+            RectTransform column = Column(canvas, "Buttons", Center, new Vector2(0f, -168f), new Vector2(512f, 288f));
             Button play = MenuButton(column, "Play", "PLAY");
             Button controlsButton = MenuButton(column, "Controls", "CONTROLS");
             Button settingsButton = MenuButton(column, "Settings", "SETTINGS");
             Button quit = MenuButton(column, "Quit", "QUIT");
 
-            ControlsView controls = BuildControls(canvas, a);
-            SettingsView settings = BuildSettings(canvas, a);
+            TMP_Text hint = NewText(canvas, "Hint", ui.MenuHint, 16, theme.DimText, TextAlignmentOptions.Bottom);
+            At(hint, Bottom, new Vector2(0f, 64f), new Vector2(1024f, 32f));
+            AddEffect(hint, TextEffect.Mode.Blink);
+
+            ControlsView controls = BuildControls(canvas);
+            SettingsView settings = BuildSettings(canvas);
 
             var menu = canvas.gameObject.AddComponent<MainMenuView>();
             Wire(menu,
-                ("rules", a.Rules), ("ui", a.Ui), ("title", title), ("highScoreText", highScore),
+                ("rules", a.Rules), ("ui", a.Ui), ("title", title), ("hintText", hint), ("highScoreText", highScore),
                 ("playButton", play), ("controlsButton", controlsButton), ("settingsButton", settingsButton),
                 ("quitButton", quit), ("controls", controls), ("settings", settings),
                 ("highScoreChanged", a.HighScoreChanged));
 
+            BuildScreenEffects();
             Save(scene, path);
         }
 
         public static void BuildGame(string path)
         {
-            LoadBuiltinSprites();
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-
-            // Load the assets only now: a new Single scene unloads unused assets, which would leave
-            // references taken earlier pointing at destroyed objects (saved as None).
-            SystemsSetup.Assets a = SystemsSetup.CreateAssets();
+            Begin(SystemsSetup.CreateAssets());
+            SystemsSetup.Assets a = assets;
 
             // Only until Dev A's player brings its own camera and AudioListener.
             CreateCamera("Placeholder Camera (delete when the player exists)");
@@ -117,75 +122,97 @@ namespace Game.EditorTools
             CreateEventSystem();
             new GameObject("--- Maze goes here ---");
 
-            RectTransform canvas = CreateCanvas("Game Canvas");
-            BuildHud(canvas, a);
-            BuildPauseMenu(canvas, a, out RectTransform pauseRoot);
-            BuildGameOver(canvas, a);
+            RectTransform canvas = CreateCanvas("Game Canvas", 0);
+            BuildHud(canvas);
+            BuildPauseMenu(canvas, out RectTransform pauseRoot);
+            BuildGameOver(canvas);
 
             // Last child draws on top, so the controls screen covers the pause menu.
-            ControlsView controls = BuildControls(canvas, a);
+            ControlsView controls = BuildControls(canvas);
             Wire(pauseRoot.GetComponent<PauseMenuView>(), ("controls", controls));
 
+            BuildScreenEffects();
             Save(scene, path);
         }
 
-        static void BuildHud(RectTransform canvas, SystemsSetup.Assets a)
+        static void Begin(SystemsSetup.Assets loaded)
         {
+            assets = loaded;
+            theme = loaded.Theme;
+            ui = loaded.Ui;
+        }
+
+        // --- Screens ---------------------------------------------------------------------------
+
+        static void BuildHud(RectTransform canvas)
+        {
+            SystemsSetup.Assets a = assets;
             RectTransform hud = Stretch(new GameObject("HUD", typeof(RectTransform)), canvas);
 
-            TMP_Text score = NewText(hud, "Score", "", 40, TextColor, TextAlignmentOptions.TopLeft);
-            Corner(score, new Vector2(0f, 1f), new Vector2(48f, -36f), new Vector2(600f, 60f));
-            TMP_Text highScore = NewText(hud, "High Score", "", 32, DimText, TextAlignmentOptions.Top);
-            Corner(highScore, new Vector2(0.5f, 1f), new Vector2(0f, -40f), new Vector2(700f, 50f));
-            TMP_Text level = NewText(hud, "Level", "", 40, TextColor, TextAlignmentOptions.TopRight);
-            Corner(level, new Vector2(1f, 1f), new Vector2(-48f, -36f), new Vector2(400f, 60f));
+            // Arcade layout: 1UP score top left, HIGH SCORE top center, level top right.
+            TMP_Text score = NewText(hud, "Score", string.Format(ui.ScoreFormat, 0), 32, theme.Text, TextAlignmentOptions.TopLeft);
+            At(score, TopLeft, new Vector2(64f, -48f), new Vector2(512f, 96f));
+            TMP_Text highScore = NewText(hud, "High Score", string.Format(ui.HighScoreFormat, 0), 32, theme.Text, TextAlignmentOptions.Top);
+            At(highScore, Top, new Vector2(0f, -48f), new Vector2(768f, 96f));
+            TMP_Text level = NewText(hud, "Level", string.Format(ui.LevelFormat, 1), 32, theme.Text, TextAlignmentOptions.TopRight);
+            At(level, TopRight, new Vector2(-64f, -48f), new Vector2(512f, 64f));
 
-            TMP_Text livesLabel = NewText(hud, "Lives Label", "", 28, DimText, TextAlignmentOptions.BottomLeft);
-            Corner(livesLabel, new Vector2(0f, 0f), new Vector2(48f, 90f), new Vector2(300f, 40f));
+            TMP_Text livesLabel = NewText(hud, "Lives Label", ui.LivesLabel, 16, theme.DimText, TextAlignmentOptions.BottomLeft);
+            At(livesLabel, BottomLeft, new Vector2(64f, 112f), new Vector2(256f, 32f));
             var icons = new List<Object>();
+            Sprite lifeSprite = UiArtGenerator.LoadSprite(UiArtGenerator.LifeIcon);
             for (int i = 0; i < a.Rules.MaxDisplayedLives; i++)
             {
-                Image icon = NewImage(hud, $"Life {i + 1}", Accent, knobSprite);
-                Corner(icon, new Vector2(0f, 0f), new Vector2(48f + i * 44f, 40f), new Vector2(32f, 32f));
+                Image icon = NewImage(hud, $"Life {i + 1}", theme.LifeIcon, lifeSprite);
+                At(icon, BottomLeft, new Vector2(64f + i * 48f, 64f), new Vector2(32f, 32f));
+                icon.enabled = i < a.Rules.StartingLives;
                 icons.Add(icon);
             }
 
-            TMP_Text batteryLabel = NewText(hud, "Battery Label", "", 28, DimText, TextAlignmentOptions.BottomRight);
-            Corner(batteryLabel, new Vector2(1f, 0f), new Vector2(-48f, 90f), new Vector2(300f, 40f));
-            Image batteryBack = NewImage(hud, "Battery Bar", new Color(1f, 1f, 1f, 0.08f), uiSprite);
-            Corner(batteryBack, new Vector2(1f, 0f), new Vector2(-48f, 40f), new Vector2(320f, 28f));
-            Image batteryFill = NewImage(batteryBack.rectTransform, "Fill", TextColor, uiSprite);
-            Stretch(batteryFill.gameObject, batteryBack.rectTransform, 4f);
-            batteryFill.type = UnityEngine.UI.Image.Type.Filled;
-            batteryFill.fillMethod = UnityEngine.UI.Image.FillMethod.Horizontal;
+            TMP_Text batteryLabel = NewText(hud, "Battery Label", ui.BatteryLabel, 16, theme.DimText, TextAlignmentOptions.BottomRight);
+            At(batteryLabel, BottomRight, new Vector2(-64f, 112f), new Vector2(256f, 32f));
 
-            TMP_Text message = NewText(hud, "State Message", "", 96, Accent, TextAlignmentOptions.Center);
-            Place(message, new Vector2(0.5f, 0.55f), new Vector2(1600f, 160f));
-            message.characterSpacing = 16f;
+            int count = theme.BatterySegments;
+            const float cell = 24f, gap = 8f;
+            float inner = count * cell + (count - 1) * gap;
+            Image frame = NewImage(hud, "Battery Frame", theme.DimText, UiArtGenerator.LoadSprite(UiArtGenerator.Frame));
+            frame.type = UnityEngine.UI.Image.Type.Sliced;
+            frame.pixelsPerUnitMultiplier = 0.5f;
+            At(frame, BottomRight, new Vector2(-64f, 56f), new Vector2(inner + 24f, 48f));
+            var segments = new List<Object>();
+            for (int i = 0; i < count; i++)
+            {
+                Image segment = NewImage(frame.rectTransform, $"Cell {i + 1}", theme.Text, null);
+                At(segment, Left, new Vector2(12f + i * (cell + gap), 0f), new Vector2(cell, 24f));
+                segments.Add(segment);
+            }
+
+            TMP_Text message = NewText(hud, "State Message", ui.MessageFor(GameState.Ready), 64, theme.Ready, TextAlignmentOptions.Center, neon: true);
+            At(message, Center, new Vector2(0f, 64f), new Vector2(1536f, 128f));
+            AddEffect(message, TextEffect.Mode.Pulse);
 
             var view = hud.gameObject.AddComponent<HudView>();
             Wire(view,
-                ("ui", a.Ui), ("scoreText", score), ("highScoreText", highScore), ("levelText", level),
-                ("livesLabel", livesLabel), ("batteryLabel", batteryLabel), ("batteryFill", batteryFill),
-                ("messageText", message),
+                ("ui", a.Ui), ("theme", theme), ("scoreText", score), ("highScoreText", highScore), ("levelText", level),
+                ("livesLabel", livesLabel), ("batteryLabel", batteryLabel), ("messageText", message),
                 ("scoreChanged", a.ScoreChanged), ("highScoreChanged", a.HighScoreChanged),
                 ("livesChanged", a.LivesChanged), ("levelNumberChanged", a.LevelNumberChanged),
                 ("batteryChanged", a.BatteryChanged), ("gameStateChanged", a.GameStateChanged));
-
-            var so = new SerializedObject(view);
-            SystemsSetup.SetArray(so.FindProperty("lifeIcons"), icons);
-            so.ApplyModifiedPropertiesWithoutUndo();
+            SetArray(view, "lifeIcons", icons);
+            SetArray(view, "batterySegments", segments);
         }
 
-        static void BuildPauseMenu(RectTransform canvas, SystemsSetup.Assets a, out RectTransform root)
+        static void BuildPauseMenu(RectTransform canvas, out RectTransform root)
         {
+            SystemsSetup.Assets a = assets;
             root = Stretch(new GameObject("Pause Menu", typeof(RectTransform)), canvas);
-            Image panel = Panel(root, "Panel", Overlay);
+            Image panel = Panel(root, "Panel", theme.Overlay);
+            RectTransform box = FramedBox(panel.rectTransform, new Vector2(704f, 512f));
 
-            TMP_Text title = NewText(panel.rectTransform, "Title", "", 96, TextColor, TextAlignmentOptions.Center);
-            Place(title, new Vector2(0.5f, 0.72f), new Vector2(1000f, 140f));
+            TMP_Text title = NewText(box, "Title", ui.PausedTitle, 64, theme.Text, TextAlignmentOptions.Center, neon: true);
+            At(title, Top, new Vector2(0f, -64f), new Vector2(640f, 96f));
 
-            RectTransform column = Column(panel.rectTransform, "Buttons", new Vector2(0.5f, 0.42f), new Vector2(480f, 290f));
+            RectTransform column = Column(box, "Buttons", Center, new Vector2(0f, -64f), new Vector2(512f, 208f));
             Button resume = MenuButton(column, "Resume", "RESUME");
             Button controls = MenuButton(column, "Controls", "CONTROLS");
             Button mainMenu = MenuButton(column, "Main Menu", "MAIN MENU");
@@ -195,22 +222,27 @@ namespace Game.EditorTools
                 ("resumeButton", resume), ("controlsButton", controls), ("mainMenuButton", mainMenu),
                 ("pauseChanged", a.PauseChanged), ("pauseRequested", a.PauseRequested),
                 ("mainMenuRequested", a.MainMenuRequested));
+            panel.gameObject.SetActive(false);
         }
 
-        static void BuildGameOver(RectTransform canvas, SystemsSetup.Assets a)
+        static void BuildGameOver(RectTransform canvas)
         {
+            SystemsSetup.Assets a = assets;
             RectTransform root = Stretch(new GameObject("Game Over", typeof(RectTransform)), canvas);
-            Image panel = Panel(root, "Panel", Overlay);
+            Image panel = Panel(root, "Panel", theme.Overlay);
 
-            TMP_Text title = NewText(panel.rectTransform, "Title", "", 110, Accent, TextAlignmentOptions.Center);
-            Place(title, new Vector2(0.5f, 0.74f), new Vector2(1400f, 160f));
-            title.characterSpacing = 16f;
-            TMP_Text finalScore = NewText(panel.rectTransform, "Final Score", "", 48, TextColor, TextAlignmentOptions.Center);
-            Place(finalScore, new Vector2(0.5f, 0.6f), new Vector2(1000f, 70f));
-            TMP_Text newHighScore = NewText(panel.rectTransform, "New High Score", "", 40, Accent, TextAlignmentOptions.Center);
-            Place(newHighScore, new Vector2(0.5f, 0.53f), new Vector2(1000f, 60f));
+            // Same size and place as the HUD's GAME OVER message under it, so when this screen
+            // fades in the words stay put and the score and buttons appear beneath them.
+            TMP_Text title = NewText(panel.rectTransform, "Title", ui.MessageFor(GameState.GameOver), 64, theme.Accent, TextAlignmentOptions.Center, neon: true);
+            At(title, Center, new Vector2(0f, 64f), new Vector2(1536f, 128f));
+            AddEffect(title, TextEffect.Mode.Flicker);
+            TMP_Text finalScore = NewText(panel.rectTransform, "Final Score", string.Format(ui.FinalScoreFormat, 0), 32, theme.Text, TextAlignmentOptions.Center);
+            At(finalScore, Center, new Vector2(0f, -48f), new Vector2(1024f, 64f));
+            TMP_Text newHighScore = NewText(panel.rectTransform, "New High Score", ui.NewHighScoreText, 24, theme.Ready, TextAlignmentOptions.Center);
+            At(newHighScore, Center, new Vector2(0f, -112f), new Vector2(1024f, 48f));
+            AddEffect(newHighScore, TextEffect.Mode.Blink);
 
-            RectTransform column = Column(panel.rectTransform, "Buttons", new Vector2(0.5f, 0.33f), new Vector2(480f, 190f));
+            RectTransform column = Column(panel.rectTransform, "Buttons", Center, new Vector2(0f, -248f), new Vector2(512f, 136f));
             Button retry = MenuButton(column, "Retry", "RETRY");
             Button mainMenu = MenuButton(column, "Main Menu", "MAIN MENU");
 
@@ -221,58 +253,202 @@ namespace Game.EditorTools
                 ("gameStateChanged", a.GameStateChanged), ("newGameStarted", a.NewGameStarted),
                 ("scoreChanged", a.ScoreChanged), ("highScoreChanged", a.HighScoreChanged),
                 ("restartRequested", a.RestartRequested), ("mainMenuRequested", a.MainMenuRequested));
+            panel.gameObject.SetActive(false);
         }
 
-        static ControlsView BuildControls(RectTransform canvas, SystemsSetup.Assets a)
+        static ControlsView BuildControls(RectTransform canvas)
         {
             RectTransform root = Stretch(new GameObject("Controls", typeof(RectTransform)), canvas);
-            Image panel = Panel(root, "Panel", new Color(Background.r, Background.g, Background.b, 0.97f));
+            Image panel = Panel(root, "Panel", theme.Overlay);
+            RectTransform box = FramedBox(panel.rectTransform, new Vector2(1024f, 560f));
 
-            TMP_Text title = NewText(panel.rectTransform, "Title", "", 80, TextColor, TextAlignmentOptions.Center);
-            Place(title, new Vector2(0.5f, 0.8f), new Vector2(1000f, 120f));
-            TMP_Text body = NewText(panel.rectTransform, "Body", "", 40, TextColor, TextAlignmentOptions.TopLeft);
-            Place(body, new Vector2(0.5f, 0.5f), new Vector2(900f, 360f));
+            TMP_Text title = NewText(box, "Title", ui.ControlsTitle, 48, theme.Accent, TextAlignmentOptions.Center, neon: true);
+            At(title, Top, new Vector2(0f, -64f), new Vector2(960f, 80f));
+            // The font is monospaced, so the spaces in UiConfig's lines keep the two columns aligned.
+            TMP_Text body = NewText(box, "Body", string.Join("\n", ui.ControlLines), 24, theme.Text, TextAlignmentOptions.TopLeft);
+            At(body, Top, new Vector2(0f, -176f), new Vector2(640f, 256f));
+            body.lineSpacing = 64f;
 
-            RectTransform column = Column(panel.rectTransform, "Buttons", new Vector2(0.5f, 0.2f), new Vector2(480f, 90f));
+            RectTransform column = Column(box, "Buttons", Bottom, new Vector2(0f, 56f), new Vector2(512f, 56f));
             Button back = MenuButton(column, "Back", "BACK");
 
             var view = root.gameObject.AddComponent<ControlsView>();
-            Wire(view, ("ui", a.Ui), ("panel", panel.gameObject), ("title", title), ("body", body), ("backButton", back));
+            Wire(view, ("ui", assets.Ui), ("panel", panel.gameObject), ("title", title), ("body", body), ("backButton", back));
+            panel.gameObject.SetActive(false);
             return view;
         }
 
-        static SettingsView BuildSettings(RectTransform canvas, SystemsSetup.Assets a)
+        static SettingsView BuildSettings(RectTransform canvas)
         {
             RectTransform root = Stretch(new GameObject("Settings", typeof(RectTransform)), canvas);
-            Image panel = Panel(root, "Panel", new Color(Background.r, Background.g, Background.b, 0.97f));
+            Image panel = Panel(root, "Panel", theme.Overlay);
+            RectTransform box = FramedBox(panel.rectTransform, new Vector2(1024f, 640f));
 
-            TMP_Text title = NewText(panel.rectTransform, "Title", "", 80, TextColor, TextAlignmentOptions.Center);
-            Place(title, new Vector2(0.5f, 0.78f), new Vector2(1000f, 120f));
-            TMP_Text label = NewText(panel.rectTransform, "Volume Label", "", 36, DimText, TextAlignmentOptions.Center);
-            Place(label, new Vector2(0.5f, 0.58f), new Vector2(800f, 60f));
+            TMP_Text title = NewText(box, "Title", ui.SettingsTitle, 48, theme.Accent, TextAlignmentOptions.Center, neon: true);
+            At(title, Top, new Vector2(0f, -64f), new Vector2(960f, 80f));
 
-            GameObject sliderObject = DefaultControls.CreateSlider(new DefaultControls.Resources
-            {
-                standard = uiSprite, background = backgroundSprite, knob = knobSprite
-            });
-            sliderObject.name = "Volume Slider";
-            sliderObject.transform.SetParent(panel.rectTransform, false);
-            Place(sliderObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(700f, 30f));
-            var slider = sliderObject.GetComponent<Slider>();
-            slider.minValue = 0f;
-            slider.maxValue = 1f;
-            slider.fillRect.GetComponent<Image>().color = Accent;
+            TMP_Text volumeLabel = NewText(box, "Volume Label", ui.VolumeLabel, 24, theme.DimText, TextAlignmentOptions.Center);
+            At(volumeLabel, Center, new Vector2(0f, 112f), new Vector2(768f, 48f));
+            Slider slider = BuildSlider(box, new Vector2(0f, 48f));
 
-            RectTransform column = Column(panel.rectTransform, "Buttons", new Vector2(0.5f, 0.25f), new Vector2(480f, 90f));
+            TMP_Text effectsLabel = NewText(box, "Effects Label", ui.EffectsLabel, 24, theme.DimText, TextAlignmentOptions.Center);
+            At(effectsLabel, Center, new Vector2(0f, -40f), new Vector2(768f, 48f));
+            RectTransform toggleRow = Column(box, "Effects Toggle", Center, new Vector2(0f, -104f), new Vector2(512f, 56f));
+            Button effectsButton = MenuButton(toggleRow, "Effects Button", ui.OnText);
+            TMP_Text effectsValue = effectsButton.GetComponentInChildren<TMP_Text>();
+
+            RectTransform column = Column(box, "Buttons", Bottom, new Vector2(0f, 56f), new Vector2(512f, 56f));
             Button back = MenuButton(column, "Back", "BACK");
 
             var view = root.gameObject.AddComponent<SettingsView>();
-            Wire(view, ("ui", a.Ui), ("panel", panel.gameObject), ("title", title), ("volumeLabel", label),
-                ("volumeSlider", slider), ("backButton", back));
+            Wire(view, ("ui", assets.Ui), ("panel", panel.gameObject), ("title", title), ("volumeLabel", volumeLabel),
+                ("volumeSlider", slider), ("effectsLabel", effectsLabel), ("effectsButton", effectsButton),
+                ("effectsValue", effectsValue), ("backButton", back),
+                ("screenEffectsChanged", assets.ScreenEffectsChanged));
+            panel.gameObject.SetActive(false);
             return view;
         }
 
-        // --- Small helpers ------------------------------------------------------------------
+        // Blinky, Pinky, Inky and Clyde in their own colors, like the arcade's attract screen.
+        static void BuildGhostRow(RectTransform canvas, Vector2 offset)
+        {
+            Sprite body = UiArtGenerator.LoadSprite(UiArtGenerator.GhostBody);
+            Sprite eyes = UiArtGenerator.LoadSprite(UiArtGenerator.GhostEyes);
+            string[] names = { "Blinky", "Pinky", "Inky", "Clyde" };
+
+            for (int i = 0; i < names.Length; i++)
+            {
+                var config = AssetDatabase.LoadAssetAtPath<GhostConfig>($"{ConfigFolder}GhostConfig_{names[i]}.asset");
+                Color color = config != null ? config.Color : theme.Accent;
+                Vector2 position = offset + new Vector2((i - 1.5f) * 112f, 0f);
+
+                Image ghost = NewImage(canvas, $"Ghost {names[i]}", color, body);
+                At(ghost, Center, position, new Vector2(56f, 56f));
+                Image eye = NewImage(ghost.rectTransform, "Eyes", Color.white, eyes);
+                Stretch(eye.gameObject, ghost.rectTransform);
+            }
+        }
+
+        // Scanlines, vignette and grain on their own canvas above everything. No raycaster, so it
+        // never blocks a click.
+        static void BuildScreenEffects()
+        {
+            var go = new GameObject("Screen Effects", typeof(Canvas), typeof(CanvasScaler));
+            var canvas = go.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 100;
+            var rect = go.GetComponent<RectTransform>();
+
+            RectTransform effects = Stretch(new GameObject("Effects", typeof(RectTransform)), rect);
+
+            // Bottom to top: grain, then scanlines, then the vignette, so the edges darken the grain too.
+            RawImage grain = NewRawImage(effects, "Grain", UiArtGenerator.LoadTexture(UiArtGenerator.Grain), theme.GrainOpacity);
+            grain.uvRect = new Rect(0f, 0f, 1920f / 256f, 1080f / 256f);
+            RawImage scanlines = NewRawImage(effects, "Scanlines", UiArtGenerator.LoadTexture(UiArtGenerator.Scanlines), theme.ScanlineOpacity);
+            scanlines.uvRect = new Rect(0f, 0f, 1f, 1080f / 3f);
+            Image vignette = NewImage(effects, "Vignette", new Color(0f, 0f, 0f, theme.VignetteOpacity), UiArtGenerator.LoadSprite(UiArtGenerator.Vignette));
+            Stretch(vignette.gameObject, effects);
+
+            Wire(go.AddComponent<ScreenEffectsOverlay>(),
+                ("ui", ui), ("theme", theme), ("effectsRoot", effects.gameObject),
+                ("scanlines", scanlines), ("vignette", vignette), ("grain", grain),
+                ("screenEffectsChanged", assets.ScreenEffectsChanged));
+        }
+
+        // --- Widgets ---------------------------------------------------------------------------
+
+        static Slider BuildSlider(RectTransform parent, Vector2 offset)
+        {
+            var go = new GameObject("Volume Slider", typeof(RectTransform), typeof(Slider));
+            go.transform.SetParent(parent, false);
+            At(go.GetComponent<RectTransform>(), Center, offset, new Vector2(640f, 32f));
+
+            Image background = NewImage(go.GetComponent<RectTransform>(), "Background", theme.BatteryEmpty, null);
+            Stretch(background.gameObject, go.GetComponent<RectTransform>(), 0f, 8f);
+
+            RectTransform fillArea = Stretch(new GameObject("Fill Area", typeof(RectTransform)), go.GetComponent<RectTransform>(), 0f, 8f);
+            Image fill = NewImage(fillArea, "Fill", theme.Accent, null);
+            Stretch(fill.gameObject, fillArea);
+
+            RectTransform handleArea = Stretch(new GameObject("Handle Area", typeof(RectTransform)), go.GetComponent<RectTransform>(), 8f, 0f);
+            Image handle = NewImage(handleArea, "Handle", theme.Text, null);
+            handle.rectTransform.sizeDelta = new Vector2(16f, 0f);
+            handle.rectTransform.anchorMin = new Vector2(0f, 0f);
+            handle.rectTransform.anchorMax = new Vector2(0f, 1f);
+
+            var slider = go.GetComponent<Slider>();
+            slider.fillRect = fill.rectTransform;
+            slider.handleRect = handle.rectTransform;
+            slider.targetGraphic = handle;
+            slider.direction = Slider.Direction.LeftToRight;
+            slider.minValue = 0f;
+            slider.maxValue = 1f;
+            slider.value = ui.DefaultVolume;
+            slider.colors = ButtonColors();
+            return slider;
+        }
+
+        // A frame in the accent color with a black interior, centered in `parent`.
+        static RectTransform FramedBox(RectTransform parent, Vector2 size)
+        {
+            Image box = NewImage(parent, "Box", theme.Background, null);
+            At(box, Center, Vector2.zero, size);
+            Image frame = NewImage(box.rectTransform, "Frame", theme.Accent, UiArtGenerator.LoadSprite(UiArtGenerator.Frame));
+            frame.type = UnityEngine.UI.Image.Type.Sliced;
+            frame.pixelsPerUnitMultiplier = 0.5f;
+            Stretch(frame.gameObject, box.rectTransform);
+            return box.rectTransform;
+        }
+
+        // Text-only arcade button: the label itself takes the tint (off-white, red when
+        // highlighted or selected by pad, yellow when pressed).
+        static Button MenuButton(RectTransform parent, string name, string label)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            go.GetComponent<RectTransform>().sizeDelta = new Vector2(512f, 56f);
+
+            TMP_Text text = NewText(go.GetComponent<RectTransform>(), "Label", label, 32, Color.white, TextAlignmentOptions.Center);
+            Stretch(text.gameObject, go.GetComponent<RectTransform>());
+            text.raycastTarget = true;
+
+            var button = go.AddComponent<Button>();
+            button.targetGraphic = text;
+            button.colors = ButtonColors();
+            return button;
+        }
+
+        static ColorBlock ButtonColors()
+        {
+            ColorBlock colors = ColorBlock.defaultColorBlock;
+            colors.normalColor = theme.Text;
+            colors.highlightedColor = theme.Accent;
+            colors.selectedColor = theme.Accent;
+            colors.pressedColor = theme.Ready;
+            colors.disabledColor = theme.DimText;
+            colors.fadeDuration = 0.05f;
+            return colors;
+        }
+
+        static void AddEffect(TMP_Text text, TextEffect.Mode mode)
+        {
+            var effect = text.gameObject.AddComponent<TextEffect>();
+            Wire(effect, ("target", text), ("ui", ui), ("theme", theme), ("screenEffectsChanged", assets.ScreenEffectsChanged));
+            var so = new SerializedObject(effect);
+            so.FindProperty("mode").enumValueIndex = (int)mode;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        // --- Small helpers ---------------------------------------------------------------------
+
+        static readonly Vector2 Center = new(0.5f, 0.5f);
+        static readonly Vector2 Top = new(0.5f, 1f);
+        static readonly Vector2 Bottom = new(0.5f, 0f);
+        static readonly Vector2 Left = new(0f, 0.5f);
+        static readonly Vector2 TopLeft = new(0f, 1f);
+        static readonly Vector2 TopRight = new(1f, 1f);
+        static readonly Vector2 BottomLeft = new(0f, 0f);
+        static readonly Vector2 BottomRight = new(1f, 0f);
 
         static void CreateCamera(string name)
         {
@@ -288,10 +464,13 @@ namespace Game.EditorTools
             go.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
         }
 
-        static RectTransform CreateCanvas(string name)
+        static RectTransform CreateCanvas(string name, int sortingOrder)
         {
             var go = new GameObject(name, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            go.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+            var canvas = go.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = sortingOrder;
+            canvas.pixelPerfect = true;
             var scaler = go.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
@@ -313,82 +492,69 @@ namespace Game.EditorTools
             var image = go.GetComponent<Image>();
             image.color = color;
             image.sprite = sprite;
-            if (sprite == uiSprite && sprite != null)
-                image.type = UnityEngine.UI.Image.Type.Sliced;
+            image.raycastTarget = false;
             return image;
         }
 
-        static TMP_Text NewText(RectTransform parent, string name, string text, float size, Color color, TextAlignmentOptions alignment)
+        static RawImage NewRawImage(RectTransform parent, string name, Texture texture, float alpha)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(RawImage));
+            go.transform.SetParent(parent, false);
+            var image = go.GetComponent<RawImage>();
+            image.texture = texture;
+            image.color = new Color(1f, 1f, 1f, alpha);
+            image.raycastTarget = false;
+            Stretch(go, parent);
+            return image;
+        }
+
+        static TMP_Text NewText(RectTransform parent, string name, string text, int size, Color color,
+            TextAlignmentOptions alignment, bool neon = false)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
             var label = go.AddComponent<TextMeshProUGUI>();
-            if (TMP_Settings.defaultFontAsset != null)
-                label.font = TMP_Settings.defaultFontAsset;
+            label.font = theme.Font;
+            if (neon)
+                label.fontSharedMaterial = theme.NeonMaterial;
             label.text = text;
             label.fontSize = size;
             label.color = color;
             label.alignment = alignment;
+            label.textWrappingMode = TextWrappingModes.NoWrap;
             label.raycastTarget = false;
             return label;
         }
 
-        static RectTransform Column(RectTransform parent, string name, Vector2 anchor, Vector2 size)
+        static RectTransform Column(RectTransform parent, string name, Vector2 anchor, Vector2 offset, Vector2 size)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(VerticalLayoutGroup));
             go.transform.SetParent(parent, false);
             var layout = go.GetComponent<VerticalLayoutGroup>();
-            layout.spacing = 18f;
+            layout.spacing = 16f;
             layout.childAlignment = TextAnchor.UpperCenter;
             layout.childControlWidth = true;
             layout.childControlHeight = false;
             layout.childForceExpandWidth = true;
             layout.childForceExpandHeight = false;
             var rect = go.GetComponent<RectTransform>();
-            Place(rect, anchor, size);
+            At(rect, anchor, offset, size);
             return rect;
         }
 
-        static Button MenuButton(RectTransform parent, string name, string label)
-        {
-            Image image = NewImage(parent, name, Color.white, uiSprite);
-            image.rectTransform.sizeDelta = new Vector2(480f, 72f);
-            var button = image.gameObject.AddComponent<Button>();
-            ColorBlock colors = button.colors;
-            colors.normalColor = ButtonColor;
-            colors.highlightedColor = new Color(0.22f, 0.05f, 0.04f, 1f);
-            colors.selectedColor = new Color(0.22f, 0.05f, 0.04f, 1f);
-            colors.pressedColor = Accent;
-            button.colors = colors;
-
-            TMP_Text text = NewText(image.rectTransform, "Label", label, 36, TextColor, TextAlignmentOptions.Center);
-            Stretch(text.gameObject, image.rectTransform);
-            text.characterSpacing = 6f;
-            return button;
-        }
-
-        static RectTransform Stretch(GameObject go, RectTransform parent, float inset = 0f)
+        static RectTransform Stretch(GameObject go, RectTransform parent, float insetX = 0f, float insetY = 0f)
         {
             var rect = go.GetComponent<RectTransform>();
             rect.SetParent(parent, false);
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
-            rect.offsetMin = new Vector2(inset, inset);
-            rect.offsetMax = new Vector2(-inset, -inset);
+            rect.offsetMin = new Vector2(insetX, insetY);
+            rect.offsetMax = new Vector2(-insetX, -insetY);
             return rect;
         }
 
-        static void Place(Component component, Vector2 anchor, Vector2 size)
-        {
-            var rect = component.GetComponent<RectTransform>();
-            rect.anchorMin = anchor;
-            rect.anchorMax = anchor;
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = Vector2.zero;
-            rect.sizeDelta = size;
-        }
-
-        static void Corner(Component component, Vector2 anchor, Vector2 offset, Vector2 size)
+        // Anchors and pivots at the same point, then offsets by whole pixels.
+        static void At(Component component, Vector2 anchor, Vector2 offset, Vector2 size)
         {
             var rect = component.GetComponent<RectTransform>();
             rect.anchorMin = anchor;
@@ -416,11 +582,11 @@ namespace Game.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        static void LoadBuiltinSprites()
+        static void SetArray(Object target, string field, List<Object> items)
         {
-            uiSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
-            backgroundSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
-            knobSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
+            var so = new SerializedObject(target);
+            SystemsSetup.SetArray(so.FindProperty(field), items);
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         static void Save(Scene scene, string path)
