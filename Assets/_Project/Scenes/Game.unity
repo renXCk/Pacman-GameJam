@@ -5808,6 +5808,9 @@ GameObject:
   - component: {fileID: 1684592637}
   - component: {fileID: 1684592636}
   - component: {fileID: 1684592639}
+  - component: {fileID: 1684592640}
+  - component: {fileID: 1684592642}
+  - component: {fileID: 1684592641}
   m_Layer: 0
   m_Name: Maze
   m_TagString: Untagged
@@ -5891,6 +5894,61 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Runtime::Game.Maze.MazePlayerSpawn
   spawnPoint: {fileID: 1991153951}
+--- !u!114 &1684592640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684592634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86d05685fb01ea34a9ccd94b01a89663, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Game.Pickups.MazePickups
+  cellConfig: {fileID: 11400000, guid: 7fa01e4fdd38ae14bb693003ee4d3cb1, type: 2}
+  flareConfig: {fileID: 11400000, guid: 468d08d849881094fad2d8230bb13250, type: 2}
+  batteryConfig: {fileID: 11400000, guid: 93df3caefed1bac48ab3dbad76cb92c5, type: 2}
+  cellMaterial: {fileID: 2100000, guid: 09fdec00e2adc894889366fde8d4b718, type: 2}
+  flareMaterial: {fileID: 2100000, guid: f2301ac2e3e0d234c9fac145605cd7e0, type: 2}
+  batteryMaterial: {fileID: 2100000, guid: 95db39935c9b14944872a7447ddd0cc7, type: 2}
+  progress: {fileID: 11400000, guid: 40326fe29f0156b44909267a577644c9, type: 2}
+  levelStarted: {fileID: 11400000, guid: 4f6b9eae4cd8425468ae1c9191b427dc, type: 2}
+  pickupCollected: {fileID: 11400000, guid: 248c9b02ef4eefc48ac1e6270db5cce7, type: 2}
+  flareCollected: {fileID: 11400000, guid: 9363bc8ca8b50af4d908b0ce78ff2e65, type: 2}
+--- !u!114 &1684592641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684592634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f935b9a351c1a40948fe6480764052, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Game.Maze.MazeWarps
+  padMaterial: {fileID: 2100000, guid: 66e77301b6acb05478de2f57c0c262eb, type: 2}
+--- !u!114 &1684592642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684592634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0b97d757c940654297a86f3890019ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Game.Pickups.BatteryDirector
+  pickups: {fileID: 1684592640}
+  progress: {fileID: 11400000, guid: 40326fe29f0156b44909267a577644c9, type: 2}
+  spawnAtFractions:
+  - 0.25
+  - 0.65
+  lifetimeSeconds: 20
+  levelStarted: {fileID: 11400000, guid: 4f6b9eae4cd8425468ae1c9191b427dc, type: 2}
+  gameStateChanged: {fileID: 11400000, guid: 39dac2173a3ed0f4fa0cf16ede16c6f0, type: 2}
 --- !u!1 &1721096814
 GameObject:
   m_ObjectHideFlags: 0
