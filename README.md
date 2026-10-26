@@ -66,6 +66,7 @@ Today the `Game` scene runs the full state flow (Ready, Playing, pause, caught, 
 ## Documentation
 
 - [Docs/Architecture-ScriptableObjects-and-Events.md](Docs/Architecture-ScriptableObjects-and-Events.md): how the two core features (Scriptable Objects, Event Broadcasting) drive the game
+- [Docs/Art-and-Level-Design-Guide.md](Docs/Art-and-Level-Design-Guide.md): art style, spatial metrics, pickups, and level guidelines
 - [Docs/Package-C-Systems.md](Docs/Package-C-Systems.md): systems and UI, and how to plug into them
 - [Docs/Package-B-Ghost-AI.md](Docs/Package-B-Ghost-AI.md): ghost AI
 - [Docs/Deck/Deck-Outline.md](Docs/Deck/Deck-Outline.md): technical documentation slide deck content
