@@ -173,8 +173,9 @@ namespace Game.Tests
         {
             MazeBuilder builder = MakeBuilder(false, out GhostMazeLayout layout);
 
+            // Count the ghosts under this maze only: the open scene may have a maze and ghosts of its own.
             Assert.That(builder.GetComponent<MazeGhosts>().Spawned.Count, Is.EqualTo(0));
-            Assert.That(Object.FindObjectsByType<Ghost>(FindObjectsInactive.Exclude).Length, Is.EqualTo(0));
+            Assert.That(builder.GetComponentsInChildren<Ghost>(true).Length, Is.EqualTo(0));
             Assert.That(layout.IsComplete, Is.True);
         }
 
@@ -187,7 +188,7 @@ namespace Game.Tests
             yield return null;
 
             Assert.That(builder.GetComponent<MazeGhosts>().Spawned.Count, Is.EqualTo(4));
-            Assert.That(Object.FindObjectsByType<Ghost>(FindObjectsInactive.Exclude).Length, Is.EqualTo(4), "no leftover ghosts");
+            Assert.That(builder.GetComponentsInChildren<Ghost>().Length, Is.EqualTo(4), "no leftover ghosts under this maze");
         }
     }
 }
