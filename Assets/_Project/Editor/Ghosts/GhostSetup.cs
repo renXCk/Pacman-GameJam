@@ -448,11 +448,11 @@ namespace Game.EditorTools
             flashlight.transform.SetParent(head.transform, false);
             flashlight.transform.localPosition = new Vector3(0f, -0.05f, 0.1f);
             flashlight.type = LightType.Spot;
-            flashlight.range = 18f;
-            flashlight.spotAngle = 55f;
-            flashlight.innerSpotAngle = 30f;
-            flashlight.intensity = 6f;
-            flashlight.color = new Color(1f, 0.95f, 0.85f);
+            flashlight.range = 45f;
+            flashlight.spotAngle = 65f;
+            flashlight.innerSpotAngle = 35.75f;
+            flashlight.intensity = 80f;
+            flashlight.color = new Color(1f, 0.96f, 0.88f);
             flashlight.shadows = LightShadows.Soft;
 
             Edit(flashlight.gameObject.AddComponent<FlashlightBeamSensor>(), so =>

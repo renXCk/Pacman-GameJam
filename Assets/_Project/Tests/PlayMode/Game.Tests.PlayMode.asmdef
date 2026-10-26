@@ -5,7 +5,8 @@
         "Game.Runtime",
         "Game.Sandbox",
         "UnityEngine.TestRunner",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "Unity.AI.Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

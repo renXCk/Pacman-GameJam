@@ -1,0 +1,31 @@
+; Maze_Level1 - the hard-coded test maze (task A1). Read by MazeGrid.Parse.
+; Row 0 is the top of the map (+Z) and column 0 is the left (-X). Lines starting with ';' and blank lines are ignored.
+;
+;   #  wall                       .  power cell (counts toward the level)
+;   _  empty path, no pickup      o  flare (counts toward the level)
+;   b  battery spot (bonus, never counts)
+;   G  ghost house exit, just outside the door     -  ghost house door
+;   H  ghost house tile                            P  player start
+;   W  warp door: pairs on the map edge, not built until A7
+;
+#####################
+#.........#.........#
+#o###.###.#.###.###o#
+#...................#
+#.###.#.#####.#.###.#
+#.....#...#...#.....#
+#####.###.#.###.#####
+#####.#...G...#.#####
+#####.#.##-##.#.#####
+#####...#HHH#...#####
+#####.#.#####.#.#####
+#####.#.b.P.b.#.#####
+#####.#.#####.#.#####
+#.........#.........#
+#.###.###.#.###.###.#
+#o..#...........#..o#
+###.#.#.#####.#.#.###
+#.....#...#...#.....#
+#.#######.#.#######.#
+#...................#
+#####################
