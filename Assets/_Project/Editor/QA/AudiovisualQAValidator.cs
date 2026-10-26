@@ -51,21 +51,21 @@ namespace Game.EditorTools
         static void ValidateSceneManagers(List<string> errors, List<string> warnings)
         {
             // 1. Audio Manager
-            var audio = Object.FindFirstObjectByType<AudioManager>();
+            var audio = Object.FindAnyObjectByType<AudioManager>();
             if (audio == null)
             {
                 warnings.Add("AudioManager not found in active scene. Create an [Audio] GameObject and add AudioManager.");
             }
 
             // 2. Lighting Manager
-            var lighting = Object.FindFirstObjectByType<LightingManager>();
+            var lighting = Object.FindAnyObjectByType<LightingManager>();
             if (lighting == null)
             {
                 warnings.Add("LightingManager not found in active scene. Create a [Lighting] GameObject and add LightingManager.");
             }
 
             // 3. VFX Manager
-            var vfx = Object.FindFirstObjectByType<VFXManager>();
+            var vfx = Object.FindAnyObjectByType<VFXManager>();
             if (vfx == null)
             {
                 warnings.Add("VFXManager not found in active scene. Create a [VFX] GameObject and add VFXManager.");
@@ -74,7 +74,7 @@ namespace Game.EditorTools
 
         static void ValidatePostProcessing(List<string> errors, List<string> warnings)
         {
-            var volumes = Object.FindObjectsByType<Volume>(FindObjectsSortMode.None);
+            var volumes = Object.FindObjectsByType<Volume>(FindObjectsInactive.Exclude);
             Volume globalVolume = null;
             foreach (var v in volumes)
             {
@@ -112,7 +112,7 @@ namespace Game.EditorTools
 
         static void ValidateDynamicLightBudget(List<string> errors, List<string> warnings)
         {
-            var lights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None);
+            var lights = Object.FindObjectsByType<Light>(FindObjectsInactive.Exclude);
             int activeDynamicLights = 0;
 
             foreach (var l in lights)
@@ -135,14 +135,13 @@ namespace Game.EditorTools
 
         static void ValidateMaterials(List<string> errors, List<string> warnings)
         {
-            string[] requiredMaterials = {
+            string[] emissivePickups = {
                 "Assets/_Project/Art/Materials/M_PowerCell_Emissive.mat",
                 "Assets/_Project/Art/Materials/M_Battery_Emissive.mat",
-                "Assets/_Project/Art/Materials/M_CorridorWall_Emissive.mat",
                 "Assets/_Project/Art/Materials/M_Flare_Emissive.mat"
             };
 
-            foreach (var matPath in requiredMaterials)
+            foreach (var matPath in emissivePickups)
             {
                 var mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
                 if (mat == null)

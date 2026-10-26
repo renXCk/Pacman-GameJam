@@ -50,15 +50,31 @@ namespace Game.EditorTools
                 baseColor: new Color(0.02f, 0.1f, 0.04f),
                 emissionColor: new Color(0.1f, 1.0f, 0.35f) * 2.5f);
 
-            // 3. Corridor Wall with Emissive Accent Strip
-            CreateEmissiveMaterial(urpLit, "M_CorridorWall_Emissive",
-                baseColor: new Color(0.05f, 0.05f, 0.07f),
-                emissionColor: new Color(0.1f, 0.2f, 0.4f) * 1.5f);
+            // 3. Dark Corridor Wall (Light-absorbing horror brutalist surface)
+            CreateDarkWallMaterial(urpLit, "M_CorridorWall_Emissive",
+                baseColor: new Color(0.10f, 0.10f, 0.12f));
 
             // 4. Flare Pickup Emissive (Blinding White/Orange, HDR +4.0)
             CreateEmissiveMaterial(urpLit, "M_Flare_Emissive",
                 baseColor: new Color(0.2f, 0.1f, 0.02f),
                 emissionColor: new Color(1.0f, 0.5f, 0.1f) * 4.0f);
+        }
+
+        static void CreateDarkWallMaterial(Shader shader, string name, Color baseColor)
+        {
+            string path = $"{MaterialsPath}/{name}.mat";
+            Material mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (mat == null)
+            {
+                mat = new Material(shader);
+                AssetDatabase.CreateAsset(mat, path);
+            }
+
+            mat.SetColor("_BaseColor", baseColor);
+            mat.DisableKeyword("_EMISSION");
+            mat.SetColor("_EmissionColor", Color.black);
+            mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
+            EditorUtility.SetDirty(mat);
         }
 
         static void CreateEmissiveMaterial(Shader shader, string name, Color baseColor, Color emissionColor)

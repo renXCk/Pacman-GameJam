@@ -20,13 +20,13 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
-  m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
-  m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 1
-  m_AmbientMode: 0
+  m_AmbientSkyColor: {r: 0.002, g: 0.002, b: 0.004, a: 1}
+  m_AmbientEquatorColor: {r: 0, g: 0, b: 0, a: 1}
+  m_AmbientGroundColor: {r: 0, g: 0, b: 0, a: 1}
+  m_AmbientIntensity: 0.05
+  m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -35,7 +35,7 @@ RenderSettings:
   m_DefaultReflectionMode: 0
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
-  m_ReflectionIntensity: 1
+  m_ReflectionIntensity: 0
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
   m_UseRadianceAmbientProbe: 0
@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 29893609}
   - component: {fileID: 29893608}
   - component: {fileID: 29893611}
+  - component: {fileID: 29893612}
   m_Layer: 0
   m_Name: Flashlight
   m_TagString: Untagged
@@ -154,10 +155,10 @@ MonoBehaviour:
   playerAnchor: {fileID: 11400000, guid: 24ba1af9cb2c6294f8b12f23e24645c9, type: 2}
   followSpeed: 25
   rotationLag: 18
-  maxIntensity: 3.5
-  maxSpotAngle: 55
-  minSpotAngle: 35
-  beamRange: 18
+  maxIntensity: 80
+  maxSpotAngle: 65
+  minSpotAngle: 40
+  beamRange: 45
   batteryChanged: {fileID: 11400000, guid: 912d69e961d081d4e8e83667f04b91f9, type: 2}
   lowBatteryThreshold: 0.15
   emptyBatteryThreshold: 0.02
@@ -177,11 +178,11 @@ Light:
   m_Enabled: 1
   serializedVersion: 13
   m_Type: 0
-  m_Color: {r: 1, g: 0.95, b: 0.82, a: 1}
-  m_Intensity: 1
-  m_Range: 10
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 21.80208
+  m_Color: {r: 1, g: 0.96, b: 0.88, a: 1}
+  m_Intensity: 80
+  m_Range: 45
+  m_SpotAngle: 65
+  m_InnerSpotAngle: 35.75
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
     m_Type: 2
@@ -276,6 +277,19 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!114 &29893612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 29893607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f96ca3e82f1f4eb47b1c127d5f6a3b50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Game.Lighting.DynamicLightSource
+  priority: 100
 --- !u!1 &34514284
 GameObject:
   m_ObjectHideFlags: 0
@@ -597,6 +611,260 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.InputActionReference
   m_Asset: {fileID: 526539702}
   m_ActionId: 7607c7b6-cd76-4816-beef-bd0341cfe950
+--- !u!1 &77000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 77000002}
+  - component: {fileID: 77000003}
+  - component: {fileID: 77000004}
+  m_Layer: 0
+  m_Name: '[Global Volume]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &77000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &77000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
+  m_IsGlobal: 1
+  priority: 1
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 8f45a0b1298c47d3aa00ee6762159850, type: 2}
+--- !u!114 &77000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac23e6de7d60e084b983a26598a0f2e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Game.Lighting.PostProcessRig
+  volume: {fileID: 77000003}
+  defaultBloomIntensity: 1.2
+  defaultVignetteIntensity: 0.35
+  defaultFilmGrainIntensity: 0.25
+  defaultColorFilter: {r: 1, g: 1, b: 1, a: 1}
+  frightenedColorFilter: {r: 0.45, g: 0.75, b: 1, a: 1}
+  caughtVignetteIntensity: 0.85
+  caughtFilmGrainIntensity: 0.95
+--- !u!1 &77000011
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 77000012}
+  - component: {fileID: 77000013}
+  m_Layer: 0
+  m_Name: '[Lighting]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &77000012
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77000011}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &77000013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77000011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8016ab9476788ec40a657a577255b1a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Game.Lighting.LightingManager
+  gameStateChanged: {fileID: 11400000, guid: 39dac2173a3ed0f4fa0cf16ede16c6f0, type: 2}
+  modeChanged: {fileID: 11400000, guid: 457c4ccaf48317242acd95688d2ae79a, type: 2}
+  flareCollected: {fileID: 11400000, guid: 9363bc8ca8b50af4d908b0ce78ff2e65, type: 2}
+  playerCaught: {fileID: 11400000, guid: 9627a779b8f815b459cc17a6275d1ee4, type: 2}
+  levelComplete: {fileID: 11400000, guid: ef31fccafd21cdd43846b2577faa138a, type: 2}
+  batteryChanged: {fileID: 11400000, guid: 912d69e961d081d4e8e83667f04b91f9, type: 2}
+  postProcessRig: {fileID: 77000004}
+  flashlight: {fileID: 29893608}
+  playerAnchor: {fileID: 11400000, guid: 24ba1af9cb2c6294f8b12f23e24645c9, type: 2}
+  baseAmbientColor: {r: 0.003, g: 0.003, b: 0.005, a: 1}
+  frightenedAmbientColor: {r: 0.02, g: 0.08, b: 0.15, a: 1}
+  caughtAmbientColor: {r: 0, g: 0, b: 0, a: 1}
+  maxDynamicLights: 8
+--- !u!1 &77000021
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 77000022}
+  - component: {fileID: 77000023}
+  m_Layer: 0
+  m_Name: '[Audio]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &77000022
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77000021}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &77000023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77000021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c70fc5b45b74e247babd500e2294f98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Game.Audio.AudioManager
+  isPersistent: 0
+  gameStateChanged: {fileID: 11400000, guid: 39dac2173a3ed0f4fa0cf16ede16c6f0, type: 2}
+  modeChanged: {fileID: 11400000, guid: 457c4ccaf48317242acd95688d2ae79a, type: 2}
+  pickupCollected: {fileID: 11400000, guid: 248c9b02ef4eefc48ac1e6270db5cce7, type: 2}
+  flareCollected: {fileID: 11400000, guid: 9363bc8ca8b50af4d908b0ce78ff2e65, type: 2}
+  ghostBanished: {fileID: 11400000, guid: bd25a49e776945b419449dedaadec3d6, type: 2}
+  playerCaught: {fileID: 11400000, guid: 9627a779b8f815b459cc17a6275d1ee4, type: 2}
+  levelComplete: {fileID: 11400000, guid: ef31fccafd21cdd43846b2577faa138a, type: 2}
+  pauseChanged: {fileID: 11400000, guid: e3564139334039e498eb8f4f07c724d1, type: 2}
+  extraLifeAwarded: {fileID: 11400000, guid: e647163fa44a0c3459c29e5c931221be, type: 2}
+  ambientDroneCue: {fileID: 11400000, guid: a0100000000000000000000000000001, type: 2}
+  scatterChaseSirenCue: {fileID: 11400000, guid: a0100000000000000000000000000002, type: 2}
+  frightenedSirenCue: {fileID: 11400000, guid: a0100000000000000000000000000003, type: 2}
+  readyJingleCue: {fileID: 11400000, guid: a0100000000000000000000000000004, type: 2}
+  gameOverCue: {fileID: 11400000, guid: a0100000000000000000000000000005, type: 2}
+  cellCollectCue: {fileID: 11400000, guid: a0100000000000000000000000000006, type: 2}
+  batteryCollectCue: {fileID: 11400000, guid: a0100000000000000000000000000007, type: 2}
+  flareIgniteCue: {fileID: 11400000, guid: a0100000000000000000000000000008, type: 2}
+  ghostBanishedCue: {fileID: 11400000, guid: a0100000000000000000000000000009, type: 2}
+  playerCaughtCue: {fileID: 11400000, guid: a0100000000000000000000000000010, type: 2}
+  levelCompleteCue: {fileID: 11400000, guid: a0100000000000000000000000000011, type: 2}
+  extraLifeCue: {fileID: 11400000, guid: a0100000000000000000000000000012, type: 2}
+  sirenCrossfadeDuration: 0.5
+  ambientFadeDuration: 1
+  spatialPoolSize: 16
+  defaultSfxGroup: {fileID: 0}
+--- !u!1 &77000031
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 77000032}
+  - component: {fileID: 77000033}
+  m_Layer: 0
+  m_Name: '[VFX]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &77000032
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77000031}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &77000033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77000031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2553db66a92d2d42be3d1adfb0bf57d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Game.VFX.VFXManager
+  pickupCollected: {fileID: 11400000, guid: 248c9b02ef4eefc48ac1e6270db5cce7, type: 2}
+  flareCollected: {fileID: 11400000, guid: 9363bc8ca8b50af4d908b0ce78ff2e65, type: 2}
+  ghostBanished: {fileID: 11400000, guid: bd25a49e776945b419449dedaadec3d6, type: 2}
+  playerCaught: {fileID: 11400000, guid: 9627a779b8f815b459cc17a6275d1ee4, type: 2}
+  playerAnchor: {fileID: 11400000, guid: 24ba1af9cb2c6294f8b12f23e24645c9, type: 2}
+  flareIgnitionPrefab: {fileID: 1980000000000002, guid: 68134789012a4b5c6d7e8f9012345678, type: 3}
+  cellCollectPrefab: {fileID: 1980000000000001, guid: 781bf8322649a2a468d6c8e9ba132e01, type: 3}
+  ghostBanishPrefab: {fileID: 1980000000000003, guid: 58214697013b5c6d7e8f901234567890, type: 3}
+  playerCaughtPrefab: {fileID: 1980000000000004, guid: 47214697014b5c6d7e8f901234567801, type: 3}
+  cellCollectPoolSize: 16
+  ghostBanishPoolSize: 6
+  flarePoolSize: 2
+  playerCaughtPoolSize: 2
 --- !u!1 &84161540
 GameObject:
   m_ObjectHideFlags: 0
@@ -5909,9 +6177,9 @@ MonoBehaviour:
   cellConfig: {fileID: 11400000, guid: 7fa01e4fdd38ae14bb693003ee4d3cb1, type: 2}
   flareConfig: {fileID: 11400000, guid: 468d08d849881094fad2d8230bb13250, type: 2}
   batteryConfig: {fileID: 11400000, guid: 93df3caefed1bac48ab3dbad76cb92c5, type: 2}
-  cellMaterial: {fileID: 2100000, guid: 09fdec00e2adc894889366fde8d4b718, type: 2}
-  flareMaterial: {fileID: 2100000, guid: f2301ac2e3e0d234c9fac145605cd7e0, type: 2}
-  batteryMaterial: {fileID: 2100000, guid: 95db39935c9b14944872a7447ddd0cc7, type: 2}
+  cellMaterial: {fileID: 2100000, guid: 593bf40974950e340a6b8fe709db118a, type: 2}
+  flareMaterial: {fileID: 2100000, guid: 9a78120d9124be348bb82d5467eb81f0, type: 2}
+  batteryMaterial: {fileID: 2100000, guid: 81ba7402096181f4a9b5f92de06ca1d7, type: 2}
   progress: {fileID: 11400000, guid: 40326fe29f0156b44909267a577644c9, type: 2}
   levelStarted: {fileID: 11400000, guid: 4f6b9eae4cd8425468ae1c9191b427dc, type: 2}
   pickupCollected: {fileID: 11400000, guid: 248c9b02ef4eefc48ac1e6270db5cce7, type: 2}
@@ -7598,3 +7866,7 @@ SceneRoots:
   - {fileID: 751279104}
   - {fileID: 1721096818}
   - {fileID: 29893610}
+  - {fileID: 77000002}
+  - {fileID: 77000012}
+  - {fileID: 77000022}
+  - {fileID: 77000032}

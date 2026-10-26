@@ -95,6 +95,11 @@ namespace Game.Audio
                 DontDestroyOnLoad(gameObject);
             }
 
+            if (AudioListener.volume <= 0.001f)
+            {
+                AudioListener.volume = 0.85f;
+            }
+
             InitializeSources();
             InitializePool();
         }

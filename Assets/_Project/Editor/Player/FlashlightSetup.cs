@@ -58,7 +58,11 @@ namespace Game.EditorTools
 
                 var spot = lightObject.AddComponent<Light>();
                 spot.type = LightType.Spot;
-                spot.color = new Color(1f, 0.95f, 0.82f);
+                spot.color = new Color(1f, 0.96f, 0.88f);
+                spot.intensity = 80f;
+                spot.range = 45f;
+                spot.spotAngle = 65f;
+                spot.innerSpotAngle = 35.75f;
                 spot.shadows = LightShadows.Soft;
 
                 controller = lightObject.AddComponent<FlashlightController>();

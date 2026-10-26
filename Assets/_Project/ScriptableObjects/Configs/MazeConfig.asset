@@ -15,7 +15,7 @@ MonoBehaviour:
   mapFile: {fileID: 4900000, guid: e034158dbbd9e044db53fbcf031a41d5, type: 3}
   tileSize: 3
   wallHeight: 3.3
-  wallMaterial: {fileID: 2100000, guid: a55cd376635bebb4d8bad093e5d98ea8, type: 2}
+  wallMaterial: {fileID: 2100000, guid: 68ca11e0a94191d45927cfa4b509ef48, type: 2}
   floorMaterial: {fileID: 2100000, guid: e3d5d89b33fed02498af0e6f84bc22d7, type: 2}
   doorMaterial: {fileID: 2100000, guid: 4564a6b9e698a9e4baadeb16809edcd1, type: 2}
   ghostPrefabs:

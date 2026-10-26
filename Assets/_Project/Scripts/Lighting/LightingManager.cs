@@ -31,9 +31,9 @@ namespace Game.Lighting
 
         [Header("Ambient Lighting Palette")]
         [Tooltip("Base ambient color during normal maze gameplay (dim horror baseline).")]
-        [SerializeField] Color baseAmbientColor = new Color(0.04f, 0.04f, 0.06f);
+        [SerializeField] Color baseAmbientColor = new Color(0.003f, 0.003f, 0.005f);
         [Tooltip("Ambient light tint during Frightened phase (cold cyan/blue).")]
-        [SerializeField] Color frightenedAmbientColor = new Color(0.02f, 0.08f, 0.15f);
+        [SerializeField] Color frightenedAmbientColor = new Color(0.01f, 0.04f, 0.08f);
         [Tooltip("Ambient light tint during player catch (near pure pitch black).")]
         [SerializeField] Color caughtAmbientColor = Color.black;
 
@@ -61,6 +61,7 @@ namespace Game.Lighting
             }
             Instance = this;
 
+            RenderSettings.skybox = null;
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
             RenderSettings.ambientLight = Color.black; // Start pure black for Ready fade-up
         }

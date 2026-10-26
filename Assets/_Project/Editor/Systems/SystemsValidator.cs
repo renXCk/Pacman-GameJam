@@ -17,7 +17,8 @@ namespace Game.EditorTools
         // Fields that are empty on purpose. The ghost base prefab has no GhostConfig; each variant sets its own.
         static readonly HashSet<string> EmptyByDesign = new()
         {
-            "Assets/_Project/Prefabs/Ghosts/Ghost_Base.prefab: Ghost_Base Ghost.config"
+            "Assets/_Project/Prefabs/Ghosts/Ghost_Base.prefab: Ghost_Base Ghost.config",
+            "Assets/_Project/Scenes/Game.unity: [Audio] AudioManager.defaultSfxGroup"
         };
 
         // Returns the number of problems found.

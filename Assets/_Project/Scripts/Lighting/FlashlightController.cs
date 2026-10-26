@@ -26,13 +26,21 @@ namespace Game.Lighting
 
         [Header("Light Optics Tuning")]
         [Min(0f)]
-        [SerializeField] float maxIntensity = 3.5f;
-        [Range(20f, 80f)]
-        [SerializeField] float maxSpotAngle = 55f;
-        [Range(10f, 60f)]
-        [SerializeField] float minSpotAngle = 35f;
+        [SerializeField] float maxIntensity = 80f;
+        [Range(20f, 90f)]
+        [SerializeField] float maxSpotAngle = 65f;
+        [Range(10f, 70f)]
+        [SerializeField] float minSpotAngle = 40f;
         [Min(5f)]
-        [SerializeField] float beamRange = 18f;
+        [SerializeField] float beamRange = 45f;
+
+        [Header("Ambient Spill Light")]
+        [Tooltip("Soft local bounce/spill light around the player while the flashlight is on.")]
+        [SerializeField] Light spillLight;
+        [Min(0f)]
+        [SerializeField] float maxSpillIntensity = 2.5f;
+        [Min(1f)]
+        [SerializeField] float spillRange = 8f;
 
         [Header("Battery Dynamics")]
         [SerializeField] FloatEventChannel batteryChanged;
@@ -69,6 +77,30 @@ namespace Game.Lighting
             spotLight.range = beamRange;
             spotLight.intensity = maxIntensity;
             spotLight.spotAngle = maxSpotAngle;
+            spotLight.innerSpotAngle = spotLight.spotAngle * 0.55f;
+
+            if (spillLight == null)
+            {
+                var spillChild = transform.Find("SpillLight");
+                if (spillChild != null)
+                {
+                    spillLight = spillChild.GetComponent<Light>();
+                }
+                else
+                {
+                    var spillObj = new GameObject("SpillLight");
+                    spillObj.transform.SetParent(transform, false);
+                    spillLight = spillObj.AddComponent<Light>();
+                    spillLight.type = LightType.Point;
+                    spillLight.color = spotLight != null ? spotLight.color : new Color(1f, 0.96f, 0.88f);
+                    spillLight.shadows = LightShadows.None;
+                }
+            }
+            if (spillLight != null)
+            {
+                spillLight.intensity = maxSpillIntensity;
+                spillLight.range = spillRange;
+            }
         }
 
         void OnEnable()
@@ -84,6 +116,11 @@ namespace Game.Lighting
             if (batteryChanged != null)
             {
                 batteryChanged.Raised -= OnBatteryChanged;
+            }
+
+            if (spillLight != null)
+            {
+                spillLight.enabled = false;
             }
 
             UnlightAll();
@@ -139,6 +176,11 @@ namespace Game.Lighting
             if (currentBattery <= emptyBatteryThreshold)
             {
                 spotLight.intensity = 0f;
+                if (spillLight != null)
+                {
+                    spillLight.intensity = 0f;
+                    spillLight.enabled = false;
+                }
                 isFlickeringOff = true;
                 return;
             }
@@ -148,6 +190,8 @@ namespace Game.Lighting
 
             // Dynamic beam narrowing as battery depletes
             spotLight.spotAngle = Mathf.Lerp(minSpotAngle, maxSpotAngle, batteryFactor);
+            spotLight.innerSpotAngle = spotLight.spotAngle * 0.55f;
+            spotLight.range = beamRange;
 
             float targetIntensity = maxIntensity * Mathf.Pow(batteryFactor, 0.75f);
             isFlickeringOff = false;
@@ -172,6 +216,21 @@ namespace Game.Lighting
             }
 
             spotLight.intensity = targetIntensity;
+
+            if (spillLight != null)
+            {
+                bool shouldSpill = spotLight.enabled && !isFlickeringOff;
+                spillLight.enabled = shouldSpill;
+                if (shouldSpill)
+                {
+                    spillLight.intensity = maxSpillIntensity * Mathf.Pow(batteryFactor, 0.75f);
+                    spillLight.range = spillRange;
+                }
+                else
+                {
+                    spillLight.intensity = 0f;
+                }
+            }
         }
 
         void OnBatteryChanged(float newBatteryFraction)
